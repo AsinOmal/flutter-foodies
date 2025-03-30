@@ -17,14 +17,12 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.light(
           primary: const Color(0xFF1A9E5E),
           onPrimary: Colors.white,
-          secondary: const Color(0xFF5E9E1A ),
+          secondary: const Color(0xFF5E9E1A),
         ),
-        
         useMaterial3: true,
       ),
-      home: Scaffold(
-        body: HomeScreen(),
-      ),
+      home: HomeScreen(),
     );
+    
   }
 }
