@@ -26,7 +26,9 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
       centerTitle: true,
       leading: showBackButton //leftside
           ? IconButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.pop(context);
+              },
               icon: Icon(
                 Icons.arrow_back,
                 color: Colors.white,

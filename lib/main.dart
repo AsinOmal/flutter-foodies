@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:foodies/ui_screens/user/home_screen.dart';
+import 'package:foodies/config/routes.dart';
 
 void main() {
   runApp(const MyApp());
@@ -21,8 +21,8 @@ class MyApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      home: HomeScreen(),
+      initialRoute: AppRoutes.home,
+      onGenerateRoute: AppRoutes.generateRoute,
     );
-    
   }
 }
