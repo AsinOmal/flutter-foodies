@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
   final bool showBackButton;
   final String title;
+  final TabBar? bottom;
 
   const CustomAppbar({
     super.key,
     required this.title,
     this.showBackButton = false,
+    this.bottom,
   });
 
   @override
@@ -15,6 +17,7 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
     final theme = Theme.of(context);
 
     return AppBar(
+      bottom: bottom,
       title: Text(
         title,
         style: TextStyle(
@@ -55,5 +58,9 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => const Size.fromHeight(56);
+  Size get preferredSize {
+    return Size.fromHeight(
+      kToolbarHeight + (bottom?.preferredSize.height ?? 0)
+    );
+  }
 }
