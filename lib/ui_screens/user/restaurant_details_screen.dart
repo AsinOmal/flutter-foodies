@@ -1,6 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:foodies/models/food_item.dart';
 import 'package:foodies/models/restaurant.dart';
 import 'package:foodies/widgets/custom_appbar.dart';
+import 'package:foodies/widgets/food_item_card.dart';
+
+final List<FoodItem> _foodItems = [
+  FoodItem(
+    id: '1',
+    name: 'Classic Burger',
+    restaurantId: '1',
+    description: 'Beef Patty with cheese and veggies',
+    price: 950.00,
+    imageUrl: 'https://images.unsplash.com/photo-1553979459-d2229ba7433b',
+    category: 'Burgers',
+    isPopular: true,
+  ),
+  FoodItem(
+    id: '2',
+    name: 'Margherita Pizza',
+    restaurantId: '1',
+    description: 'Classic tomato and mozzarella',
+    price: 3250.00,
+    imageUrl: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38',
+    category: 'Pizza',
+  ),
+];
 
 class RestaurantDetailsScreen extends StatelessWidget {
   final Restaurant restaurant;
@@ -11,6 +35,15 @@ class RestaurantDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    void _handleAddToCar(FoodItem item) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Added ${item.name} to cart!'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+
     return DefaultTabController(
       length: 2,
       child: Scaffold(
@@ -29,7 +62,17 @@ class RestaurantDetailsScreen extends StatelessWidget {
         ),
         body: TabBarView(
           children: [
-            _buildRestaurantInfoTab(context),
+            ListView.builder(
+              physics: NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              itemCount: _foodItems.length,
+              itemBuilder: (context, index) => FoodItemCard(
+                item: _foodItems[index],
+                onAddPressed: () => _handleAddToCar(
+                  _foodItems[index],
+                ),
+              ),
+            ),
             const Center(child: Text('Reviews coming soon')),
           ],
         ),
@@ -67,10 +110,11 @@ class RestaurantDetailsScreen extends StatelessWidget {
                   '${restaurant.rating}',
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
-                const SizedBox(width:20),
+                const SizedBox(width: 20),
                 Text(
                   restaurant.deliveryTime,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 16),
                 ),
               ],
             ),
