@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:foodies/models/food_item.dart';
+import 'package:foodies/providers/cart_provider.dart';
+import 'package:provider/provider.dart';
 
 class FoodItemCard extends StatelessWidget {
-  final FoodItem item;
+  final FoodItem foodItem;
   final VoidCallback onAddPressed;
 
   const FoodItemCard({
     super.key,
-    required this.item,
+    required this.foodItem,
     required this.onAddPressed,
   });
 
@@ -23,7 +25,7 @@ class FoodItemCard extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: Image.network(
-                item.imageUrl,
+                foodItem.imageUrl,
                 width: 80,
                 height: 80,
                 fit: BoxFit.cover,
@@ -41,7 +43,7 @@ class FoodItemCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  item.name,
+                  foodItem.name,
                   style: TextStyle(
                     fontWeight: FontWeight.bold, //!ITEM NAME
                     fontSize: 16,
@@ -49,7 +51,7 @@ class FoodItemCard extends StatelessWidget {
                 ),
                 SizedBox(height: 4),
                 Text(
-                  item.description,
+                  foodItem.description,
                   style: TextStyle(
                     color: Colors.grey[600], //!ITEM DESCRIPTION
                   ),
@@ -58,7 +60,7 @@ class FoodItemCard extends StatelessWidget {
                 ),
                 SizedBox(height: 8),
                 Text(
-                  'LKR ${item.price.toStringAsFixed(2)}',
+                  'LKR ${foodItem.price.toStringAsFixed(2)}',
                   style: TextStyle(
                     color: Colors.green,
                     fontWeight: FontWeight.bold,
@@ -66,8 +68,12 @@ class FoodItemCard extends StatelessWidget {
                 )
               ],
             )),
-            _AnimatedAddButton(
-              onPressed: onAddPressed,
+            IconButton(
+              onPressed: () {
+                final cart = Provider.of<CartProvider>(context, listen: false);
+                cart.addItem(foodItem);
+              },
+              icon: Icon(Icons.add),
             )
           ],
         ),

@@ -1,8 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:foodies/config/routes.dart';
+import 'package:foodies/providers/cart_provider.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MultiProvider(
+    providers: [
+      ChangeNotifierProvider(
+        create: (context) => CartProvider(),
+      ),
+    ],
+    child: const MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {

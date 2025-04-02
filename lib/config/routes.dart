@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:foodies/models/restaurant.dart';
+import 'package:foodies/ui_screens/user/cart_screen.dart';
 import 'package:foodies/ui_screens/user/home_screen.dart';
 import 'package:foodies/ui_screens/user/restaurant_details_screen.dart';
 
@@ -17,6 +18,10 @@ class AppRoutes {
         final restaurant = settings.arguments as Restaurant;
         return MaterialPageRoute(
           builder: (context) => RestaurantDetailsScreen(restaurant: restaurant),
+        );
+      case '/cart':
+        return MaterialPageRoute(
+          builder: (context) => const CartScreen(),
         );
       default:
         return MaterialPageRoute(

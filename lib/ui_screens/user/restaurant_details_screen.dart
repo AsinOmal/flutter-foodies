@@ -67,7 +67,7 @@ class RestaurantDetailsScreen extends StatelessWidget {
               shrinkWrap: true,
               itemCount: _foodItems.length,
               itemBuilder: (context, index) => FoodItemCard(
-                item: _foodItems[index],
+                foodItem: _foodItems[index],
                 onAddPressed: () => _handleAddToCar(
                   _foodItems[index],
                 ),
@@ -80,6 +80,7 @@ class RestaurantDetailsScreen extends StatelessWidget {
     );
   }
 
+  // ignore: unused_element
   Widget _buildRestaurantInfoTab(BuildContext context) {
     return SingleChildScrollView(
       child: Column(
