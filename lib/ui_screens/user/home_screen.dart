@@ -48,39 +48,76 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       appBar: CustomAppbar(
         title: 'Foodies',
         showBackButton: false,
       ),
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Header with greeting
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Good ${_getTimeOfDay()}!',
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'What would you like to order?',
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
+            ),
+          ),
+
           // Search Bar
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.symmetric(horizontal: 24),
             child: TextField(
               decoration: InputDecoration(
-                hintText: 'Search...',
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(23),
-                ),
+                hintText: 'Search restaurants or foods...',
+                prefixIcon: const Icon(Icons.search, color: Colors.grey),
                 filled: true,
-                fillColor: const Color.fromARGB(255, 218, 244, 219),
+                fillColor: Colors.grey[100],
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide.none,
+                ),
+                contentPadding: const EdgeInsets.symmetric(vertical: 16),
               ),
             ),
           ),
 
           // Categories
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+            child: Text(
+              'Categories',
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
           SizedBox(
             height: 50,
             child: ListView.builder(
               itemCount: categories.length,
               scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.only(left: 24),
               itemBuilder: (context, index) {
                 return Padding(
-                  padding: const EdgeInsets.all(1),
+                  padding: const EdgeInsets.only(right: 12),
                   child: ChoiceChip(
                     label: Text(categories[index]),
                     selected: selectedCategoryIndex == index,
@@ -89,24 +126,58 @@ class _HomeScreenState extends State<HomeScreen> {
                         selectedCategoryIndex = index;
                       });
                     },
-                    selectedColor: Theme.of(context).colorScheme.primary,
+                    selectedColor: theme.colorScheme.primary,
                     labelStyle: TextStyle(
                       color: selectedCategoryIndex == index
                           ? Colors.white
                           : Colors.black,
                     ),
-                    checkmarkColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: BorderSide(
+                        color: selectedCategoryIndex == index
+                            ? Colors.transparent
+                            : Colors.grey[300]!,
+                      ),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 8,
+                    ),
                   ),
                 );
               },
             ),
           ),
 
+          // Restaurant List Header
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Popular Restaurants',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  'See all',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.primary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
           // Restaurant List
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.only(top: 16),
+            child: ListView.separated(
+              padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
               itemCount: restaurants.length,
+              separatorBuilder: (context, index) => const SizedBox(height: 16),
               itemBuilder: (context, index) {
                 return RestaurantCard(
                   restaurant: restaurants[index],
@@ -118,5 +189,12 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
     );
+  }
+
+  String _getTimeOfDay() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) return 'Morning';
+    if (hour < 17) return 'Afternoon';
+    return 'Evening';
   }
 }

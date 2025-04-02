@@ -40,7 +40,9 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
                 ),
               )
             : IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.pushNamed(context, '/profile');
+                },
                 icon: CircleAvatar(
                   backgroundColor: Colors.white,
                   radius: 15,

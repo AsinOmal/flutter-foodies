@@ -64,11 +64,22 @@ class CartItemCard extends StatelessWidget {
               Row(
                 children: [
                   IconButton(
-                    icon: Icon(Icons.remove),
+                    icon: Icon(
+                      Icons.remove,
+                      weight: 50.0,
+                      
+                      color: Colors.red,
+                    ),
                     onPressed: onDecrement,
                   ),
                   Text(item.quantity.toString()),
-                  IconButton(onPressed: onIncrement, icon: Icon(Icons.add))
+                  IconButton(
+                      onPressed: onIncrement,
+                      icon: Icon(
+                        Icons.add,
+                        weight: 50.0,
+                        color: Colors.green,
+                      ))
                 ],
               )
             ],
