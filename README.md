@@ -1,6 +1,3 @@
-Here's a polished GitHub project description that highlights your work:
-
----
 
 **🍔 Foodies - Restaurant Food Delivery App**  
 *A Flutter-based food delivery app with Firebase integration*
