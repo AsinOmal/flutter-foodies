@@ -1,16 +1,53 @@
-# foodies
+Here's a polished GitHub project description that highlights your work:
 
-A new Flutter project.
+---
 
-## Getting Started
+**🍔 Foodies - Restaurant Food Delivery App**  
+*A Flutter-based food delivery app with Firebase integration*
 
-This project is a starting point for a Flutter application.
+**Key Features Implemented:**  
+✅ **User Authentication**  
+- Email/password login & signup  
+- Firebase Auth integration  
+- Profile management  
 
-A few resources to get you started if this is your first Flutter project:
+✅ **Restaurant Browsing**  
+- Beautiful restaurant cards with ratings  
+- Category filtering  
+- Favorite toggle functionality  
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+✅ **Food Ordering System**  
+- Interactive cart management  
+- Quantity adjustment (+/-)  
+- Real-time total calculation  
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+✅ **UI/UX Highlights**  
+- Modern Material 3 design  
+- Responsive layout for all screens  
+- Smooth animations and transitions  
+- Empty state illustrations  
+
+✅ **Technical Implementation**  
+- State management with Provider  
+- Firebase Firestore integration  
+- Custom reusable widgets  
+- Clean architecture patterns  
+
+**Screens Completed:**  
+- Splash Screen  
+- Login/Signup Flow  
+- Home Feed  
+- Restaurant Details  
+- Cart Management  
+- Order Confirmation  
+
+**Coming Soon:**  
+- Payment gateway integration  
+- Order tracking  
+- Push notifications  
+
+Perfect for learning Flutter state management, Firebase integration, and modern app design patterns!
+
+---
+
+T
