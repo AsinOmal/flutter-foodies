@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class FoodItem {
   final String id;
   final String name;
@@ -17,23 +19,26 @@ class FoodItem {
     required this.imageUrl,
     required this.category,
     this.isPopular = false,
-  });
+  })  : assert(id.isNotEmpty, 'FoodItem must have a non-empty ID'),
+        assert(restaurantId.isNotEmpty, 'FoodItem must have a restaurant ID');
 
-  // Convert Firestore data to FoodItem object
   factory FoodItem.fromMap(Map<String, dynamic> map) {
-    return FoodItem(
-      id: map['id'] as String? ?? '',
-      name: map['name'] as String? ?? 'Unnamed Item',
-      restaurantId: map['restaurantId'] as String? ?? '',
-      description: map['description'] as String? ?? '',
-      price: (map['price'] as num?)?.toDouble() ?? 0.0,
-      imageUrl: map['imageUrl'] as String? ?? '',
-      category: map['category'] as String? ?? 'Other',
-      isPopular: map['isPopular'] as bool? ?? false,
-    );
+    try {
+      return FoodItem(
+        id: map['id']?.toString() ?? UniqueKey().toString(),
+        name: map['name']?.toString() ?? 'Unnamed Item',
+        restaurantId: map['restaurantId']?.toString() ?? 'unknown_restaurant',
+        description: map['description']?.toString() ?? '',
+        price: (map['price'] as num?)?.toDouble() ?? 0.0,
+        imageUrl: map['imageUrl']?.toString() ?? '',
+        category: map['category']?.toString() ?? 'Other',
+        isPopular: map['isPopular'] as bool? ?? false,
+      );
+    } catch (e) {
+      debugPrint('Error creating FoodItem: $e');
+      rethrow;
+    }
   }
-
-  // Convert FoodItem to Firestore-compatible map
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -46,10 +51,6 @@ class FoodItem {
       'isPopular': isPopular,
     };
   }
-
-  // Helper for debugging
-  @override
-  String toString() {
-    return 'FoodItem($name, LKR $price, ${isPopular ? 'Popular' : 'Regular'})';
-  }
 }
+
+// ... (keep existing toMap(), ==, hashCode, toString methods)

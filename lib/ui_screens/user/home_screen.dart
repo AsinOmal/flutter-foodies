@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:foodies/models/food_item.dart';
 import 'package:foodies/models/restaurant.dart';
+import 'package:foodies/services/restaurant_service.dart';
 import 'package:foodies/widgets/custom_appbar.dart';
+import 'package:foodies/widgets/food_item_card.dart';
 import 'package:foodies/widgets/restaurant_card.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -11,39 +14,32 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final List<Restaurant> restaurants = [
-    Restaurant(
-      id: '1',
-      name: 'Burger Palace',
-      imageUrl: 'https://images.unsplash.com/photo-1571091718767-18b5b1457add',
-      rating: 4.5,
-      deliveryTime: '20-30 min',
-      deliveryFee: 'LKR 350',
-    ),
-    Restaurant(
-      id: '2',
-      name: 'Pizza Heaven',
-      imageUrl: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38',
-      rating: 4.7,
-      deliveryTime: '25-35 min',
-      deliveryFee: 'LKR 375',
-    ),
-  ];
+  final RestaurantService _restaurantService = RestaurantService();
+  final TextEditingController _searchController = TextEditingController();
 
   int selectedCategoryIndex = 0;
+  String searchQuery = '';
+  bool showFoodItems = false;
+
   final List<String> categories = [
     "All",
     "Burgers",
     "Pizza",
-    "Asian",
-    "Kottu",
+    "Sushi",
+    "Sides",
     "Fried Rice"
   ];
 
-  void _toggleFavorite(int index) {
+  void _toggleFavorite(Restaurant restaurant) {
     setState(() {
-      restaurants[index].isFavorite = !restaurants[index].isFavorite;
+      restaurant.isFavorite = !restaurant.isFavorite;
     });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   @override
@@ -85,6 +81,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: TextField(
+              controller: _searchController,
               decoration: InputDecoration(
                 hintText: 'Search restaurants or foods...',
                 prefixIcon: const Icon(Icons.search, color: Colors.grey),
@@ -95,7 +92,23 @@ class _HomeScreenState extends State<HomeScreen> {
                   borderSide: BorderSide.none,
                 ),
                 contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                suffixIcon: searchQuery.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {
+                          _searchController.clear();
+                          setState(() {
+                            searchQuery = '';
+                          });
+                        },
+                      )
+                    : null,
               ),
+              onChanged: (value) {
+                setState(() {
+                  searchQuery = value;
+                });
+              },
             ),
           ),
 
@@ -124,6 +137,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     onSelected: (selected) {
                       setState(() {
                         selectedCategoryIndex = index;
+                        showFoodItems = selected &&
+                            index >
+                                0; // Only show food items for specific categories
                       });
                     },
                     selectedColor: theme.colorScheme.primary,
@@ -150,44 +166,158 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
 
-          // Restaurant List Header
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Popular Restaurants',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  'See all',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.primary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Restaurant List
+          // Content Section
           Expanded(
-            child: ListView.separated(
-              padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
-              itemCount: restaurants.length,
-              separatorBuilder: (context, index) => const SizedBox(height: 16),
-              itemBuilder: (context, index) {
-                return RestaurantCard(
-                  restaurant: restaurants[index],
-                  onFavoriteTap: () => _toggleFavorite(index),
-                );
-              },
-            ),
+            child: showFoodItems
+                ? _buildFoodItemsByCategory()
+                : _buildRestaurantList(theme),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildRestaurantList(ThemeData theme) {
+    return Column(
+      children: [
+        // Restaurant List Header
+        Padding(
+          padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Popular Restaurants',
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                'See all',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.primary,
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // Restaurant List
+        Expanded(
+          child: StreamBuilder<List<Restaurant>>(
+            stream: _restaurantService.getRestaurants(),
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return Center(child: Text('Error: ${snapshot.error}'));
+              }
+              if (!snapshot.hasData) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              final filteredRestaurants = snapshot.data!.where((restaurant) {
+                return restaurant.name
+                    .toLowerCase()
+                    .contains(searchQuery.toLowerCase());
+              }).toList();
+
+              if (filteredRestaurants.isEmpty) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.search_off,
+                          size: 50, color: Colors.grey),
+                      const SizedBox(height: 16),
+                      Text(
+                        'No restaurants found',
+                        style: theme.textTheme.bodyLarge,
+                      ),
+                    ],
+                  ),
+                );
+              }
+
+              return ListView.separated(
+                padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+                itemCount: filteredRestaurants.length,
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: 16),
+                itemBuilder: (context, index) {
+                  return RestaurantCard(
+                    restaurant: filteredRestaurants[index],
+                    onFavoriteTap: () =>
+                        _toggleFavorite(filteredRestaurants[index]),
+                  );
+                },
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFoodItemsByCategory() {
+    final selectedCategory = categories[selectedCategoryIndex];
+
+    return StreamBuilder<List<FoodItem>>(
+      stream: _restaurantService.getFoodItemsByCategory(selectedCategory),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        }
+        if (!snapshot.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        final filteredItems = snapshot.data!.where((item) {
+          return item.name.toLowerCase().contains(searchQuery.toLowerCase()) ||
+              item.description
+                  .toLowerCase()
+                  .contains(searchQuery.toLowerCase());
+        }).toList();
+
+        if (filteredItems.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.fastfood_outlined,
+                    size: 50, color: Colors.grey),
+                const SizedBox(height: 16),
+                Text(
+                  'No $selectedCategory items found',
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+                if (searchQuery.isNotEmpty)
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        searchQuery = '';
+                        _searchController.clear();
+                      });
+                    },
+                    child: const Text('Clear search'),
+                  ),
+              ],
+            ),
+          );
+        }
+
+        return ListView.separated(
+          padding: const EdgeInsets.all(16),
+          itemCount: filteredItems.length,
+          separatorBuilder: (context, index) => const SizedBox(height: 12),
+          itemBuilder: (context, index) {
+            return FoodItemCard(
+              foodItem: filteredItems[index],
+              onAddPressed: () {
+                // Handle add to cart
+              },
+            );
+          },
+        );
+      },
     );
   }
 

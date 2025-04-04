@@ -4,6 +4,7 @@ import 'package:foodies/providers/auth_provider.dart';
 import 'package:foodies/ui_screens/user/auth/forgot_password_screen.dart';
 import 'package:foodies/ui_screens/user/auth/login_screen.dart';
 import 'package:foodies/ui_screens/user/auth/signup_screen.dart';
+import 'package:foodies/ui_screens/user/auth/verification_pending_screen.dart';
 import 'package:foodies/ui_screens/user/cart_screen.dart';
 import 'package:foodies/ui_screens/user/home_screen.dart';
 import 'package:foodies/ui_screens/user/order_confirmation_screen.dart';
@@ -24,6 +25,7 @@ class AppRoutes {
   static const String profile = '/profile';
   static const String orderConfirmation = '/order-confirmation';
   static const String orderSuccess = '/order-success';
+  static const String verifyEmail = '/verify-email';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -36,6 +38,7 @@ class AppRoutes {
             return auth.user != null ? const HomeScreen() : const LoginScreen();
           },
         );
+        
       case login:
         return MaterialPageRoute(builder: (_) => const LoginScreen());
       case signup:
@@ -56,6 +59,9 @@ class AppRoutes {
             builder: (_) => const OrderConfirmationScreen());
       case orderSuccess:
         return MaterialPageRoute(builder: (_) => const OrderSuccessScreen());
+      case AppRoutes.verifyEmail:
+        return MaterialPageRoute(
+            builder: (_) => const VerificationPendingScreen());
       default:
         return MaterialPageRoute(
           builder: (_) => Scaffold(

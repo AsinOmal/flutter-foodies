@@ -1,32 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:foodies/models/food_item.dart';
 import 'package:foodies/models/restaurant.dart';
+import 'package:foodies/services/restaurant_service.dart';
 import 'package:foodies/widgets/food_item_card.dart';
 import 'package:provider/provider.dart';
 import 'package:foodies/providers/cart_provider.dart';
 import 'package:badges/badges.dart' as badges;
-
-final List<FoodItem> _foodItems = [
-  FoodItem(
-    id: '1',
-    name: 'Classic Burger',
-    restaurantId: '1',
-    description: 'Beef Patty with cheese and veggies',
-    price: 950.00,
-    imageUrl: 'https://images.unsplash.com/photo-1553979459-d2229ba7433b',
-    category: 'Burgers',
-    isPopular: true,
-  ),
-  FoodItem(
-    id: '2',
-    name: 'Margherita Pizza',
-    restaurantId: '1',
-    description: 'Classic tomato and mozzarella',
-    price: 3250.00,
-    imageUrl: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38',
-    category: 'Pizza',
-  ),
-];
 
 class RestaurantDetailsScreen extends StatefulWidget {
   final Restaurant restaurant;
@@ -43,6 +22,7 @@ class RestaurantDetailsScreen extends StatefulWidget {
 class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
   late Restaurant _restaurant;
   bool _showFullAppBar = true;
+  final RestaurantService _restaurantService = RestaurantService();
 
   @override
   void initState() {
@@ -56,7 +36,9 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
     });
   }
 
-  void handleAddToCart(FoodItem item) {
+  void _handleAddToCart(FoodItem item, BuildContext context) {
+    final cart = Provider.of<CartProvider>(context, listen: false);
+    cart.addItem(item);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Added ${item.name} to cart!'),
@@ -65,6 +47,45 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
           borderRadius: BorderRadius.circular(12),
         ),
         duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  Widget _buildRestaurantInfo() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            _restaurant.name,
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              const Icon(Icons.star, color: Colors.amber, size: 20),
+              const SizedBox(width: 4),
+              Text(
+                _restaurant.rating.toString(),
+                style: const TextStyle(fontSize: 16),
+              ),
+              const SizedBox(width: 16),
+              const Icon(Icons.access_time, size: 20),
+              const SizedBox(width: 4),
+              Text(_restaurant.deliveryTime),
+              const SizedBox(width: 16),
+              const Icon(Icons.delivery_dining, size: 20),
+              const SizedBox(width: 4),
+              Text(_restaurant.deliveryFee),
+            ],
+          ),
+          const SizedBox(height: 16),
+          const Divider(),
+        ],
       ),
     );
   }
@@ -94,8 +115,9 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                       _restaurant.imageUrl,
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) => Container(
-                        color: const Color.fromARGB(255, 3, 3, 3),
-                        child: const Icon(Icons.restaurant),
+                        color: Colors.grey[800],
+                        child: const Icon(Icons.restaurant,
+                            size: 50, color: Colors.white),
                       ),
                     ),
                   ),
@@ -153,16 +175,63 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
             body: TabBarView(
               children: [
                 // Menu Tab
-                ListView.separated(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  itemCount: _foodItems.length,
-                  separatorBuilder: (context, index) =>
-                      const SizedBox(height: 12),
-                  itemBuilder: (context, index) => FoodItemCard(
-                    foodItem: _foodItems[index],
-                    onAddPressed: () => handleAddToCart(_foodItems[index]),
-                  ),
+                Column(
+                  children: [
+                    _buildRestaurantInfo(),
+                    Expanded(
+                      child: StreamBuilder<List<FoodItem>>(
+                        stream: _restaurantService.getMenuItems(_restaurant.id),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                                child: CircularProgressIndicator());
+                          }
+                          if (snapshot.hasError) {
+                            return Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(Icons.error_outline,
+                                      size: 50, color: Colors.red),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    'Error loading menu: ${snapshot.error}',
+                                    style: const TextStyle(fontSize: 16),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  const SizedBox(height: 16),
+                                  ElevatedButton(
+                                    onPressed: () => setState(() {}),
+                                    child: const Text('Retry'),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }
+                          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                            return const Center(
+                              child: Text(
+                                'No menu items available',
+                                style: TextStyle(fontSize: 16),
+                              ),
+                            );
+                          }
+                          return ListView.separated(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            itemCount: snapshot.data!.length,
+                            separatorBuilder: (context, index) =>
+                                const SizedBox(height: 12),
+                            itemBuilder: (context, index) => FoodItemCard(
+                              foodItem: snapshot.data![index],
+                              onAddPressed: () => _handleAddToCart(
+                                  snapshot.data![index], context),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 ),
                 // Reviews Tab
                 const Center(
@@ -237,7 +306,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
 class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   final TabBar tabBar;
 
-  _SliverAppBarDelegate(this.tabBar);
+  const _SliverAppBarDelegate(this.tabBar);
 
   @override
   Widget build(
@@ -255,7 +324,5 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   double get minExtent => tabBar.preferredSize.height;
 
   @override
-  bool shouldRebuild(_SliverAppBarDelegate oldDelegate) {
-    return false;
-  }
+  bool shouldRebuild(_SliverAppBarDelegate oldDelegate) => false;
 }

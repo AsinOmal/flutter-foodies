@@ -1,5 +1,3 @@
-//lib/models/cart_item.dart
-
 import 'package:foodies/models/food_item.dart';
 
 class CartItem {
@@ -11,10 +9,20 @@ class CartItem {
     this.quantity = 1,
   });
 
-   factory CartItem.fromMap(Map<String, dynamic> map) {
+  CartItem copyWith({
+    FoodItem? foodItem,
+    int? quantity,
+  }) {
     return CartItem(
-      foodItem: FoodItem.fromMap(map['foodItem']),
-      quantity: map['quantity'] ?? 1,
+      foodItem: foodItem ?? this.foodItem,
+      quantity: quantity ?? this.quantity,
+    );
+  }
+
+  factory CartItem.fromMap(Map<String, dynamic> map) {
+    return CartItem(
+      foodItem: FoodItem.fromMap(map['foodItem'] ?? {}),
+      quantity: (map['quantity'] as num?)?.toInt() ?? 1,
     );
   }
 
@@ -26,4 +34,20 @@ class CartItem {
   }
 
   double get totalPrice => foodItem.price * quantity;
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is CartItem &&
+        other.foodItem == foodItem &&
+        other.quantity == quantity;
+  }
+
+  @override
+  int get hashCode => foodItem.hashCode ^ quantity.hashCode;
+
+  @override
+  String toString() {
+    return 'CartItem(${foodItem.name}, Qty: $quantity)';
+  }
 }

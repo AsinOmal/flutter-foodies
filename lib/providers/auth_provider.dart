@@ -2,8 +2,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class AuthProvider extends ChangeNotifier {
-
-  
   final FirebaseAuth _auth = FirebaseAuth.instance;
   User? _user;
   String? _error;
@@ -25,6 +23,17 @@ class AuthProvider extends ChangeNotifier {
 
   void _setLoading(bool loading) {
     _isLoading = loading;
+    notifyListeners();
+  }
+
+  // In auth_provider.dart
+  Future<void> checkEmailVerified() async {
+    await _auth.currentUser?.reload();
+    if (_auth.currentUser?.emailVerified ?? false) {
+      _user = _auth.currentUser;
+    } else {
+      await _auth.signOut();
+    }
     notifyListeners();
   }
 
@@ -52,6 +61,7 @@ class AuthProvider extends ChangeNotifier {
         password: password.trim(),
       );
       await cred.user?.sendEmailVerification();
+      await cred.user?.reload();
       return true;
     } on FirebaseAuthException catch (e) {
       _error = _getErrorMessage(e);
@@ -67,15 +77,21 @@ class AuthProvider extends ChangeNotifier {
 
   String _getErrorMessage(FirebaseAuthException e) {
     switch (e.code) {
-      case 'invalid-email': return 'Invalid email format';
-      case 'user-not-found': return 'No account found';
-      case 'wrong-password': return 'Incorrect password';
-      case 'email-already-in-use': return 'Email already registered';
-      case 'weak-password': return 'Use stronger password';
-      default: return 'Authentication failed';
+      case 'invalid-email':
+        return 'Invalid email format';
+      case 'user-not-found':
+        return 'No account found';
+      case 'wrong-password':
+        return 'Incorrect password';
+      case 'email-already-in-use':
+        return 'Email already registered';
+      case 'weak-password':
+        return 'Use stronger password';
+      default:
+        return 'Authentication failed';
     }
   }
-  
+
   Future<void> resetPassword(String email) async {
     try {
       _setLoading(true);
@@ -84,7 +100,4 @@ class AuthProvider extends ChangeNotifier {
       _setLoading(false);
     }
   }
-
-  
-
 }

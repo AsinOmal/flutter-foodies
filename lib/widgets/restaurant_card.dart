@@ -17,7 +17,8 @@ class RestaurantCard extends StatelessWidget {
     return InkWell(
       borderRadius: BorderRadius.circular(12),
       onTap: () {
-        Navigator.pushNamed(context, AppRoutes.restaurantDetails, arguments: restaurant);
+        Navigator.pushNamed(context, AppRoutes.restaurantDetails,
+            arguments: restaurant);
       },
       child: Card(
         margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -30,14 +31,17 @@ class RestaurantCard extends StatelessWidget {
             Stack(
               children: [
                 ClipRRect(
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(12),
-                  ),
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(12)),
                   child: Image.network(
                     restaurant.imageUrl,
                     height: 150,
                     width: double.infinity,
                     fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      color: Colors.grey[300],
+                      child: const Icon(Icons.restaurant, color: Colors.white),
+                    ),
                   ),
                 ),
                 Positioned(
@@ -50,7 +54,6 @@ class RestaurantCard extends StatelessWidget {
                           ? Icons.favorite
                           : Icons.favorite_border,
                       color: restaurant.isFavorite ? Colors.red : Colors.white,
-                      
                     ),
                   ),
                 ),
