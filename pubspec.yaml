@@ -42,6 +42,7 @@ dependencies:
   lottie: ^2.3.1
   badges: ^3.0.0
   flutter_svg: ^2.0.7
+  flutter_launcher_icons: ^0.14.3
 
 dev_dependencies:
   flutter_test:
@@ -69,7 +70,12 @@ flutter:
     - assets/order_success.json
     - assets/splash_animation.json
     
-
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon/playstore.png"
+  # For adaptive icons on Android:
+  image_path_android: "assets/icon/playstore.png"
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
 
