@@ -43,8 +43,6 @@
 - Order tracking  
 - Push notifications  
 
-Perfect for learning Flutter state management, Firebase integration, and modern app design patterns!
 
 ---
-
 T
